@@ -2,7 +2,7 @@ import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import React from "react";
 import { Text, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { MainDrawer } from "./Components/drawer";
 
 export default function App() {
@@ -21,7 +21,7 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={DarkTheme}>
       <MainDrawer></MainDrawer>
     </NavigationContainer>
   );

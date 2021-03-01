@@ -6,10 +6,10 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, View } from "react-native";
 import Details from "../Screens/Details";
 import Play from "../Screens/Play";
-import Playv2 from "../Screens/Playv2";
 import { DrawerContent } from "./DrawerContent";
 import Search from "../Screens/Search";
 import logo from "../assets/images/logo.png";
+import { DarkTheme } from "@react-navigation/native";
 const Drawer = createDrawerNavigator();
 const HomeStack = createStackNavigator();
 export const HomeStackScreen = ({ navigation }) => {
@@ -87,21 +87,6 @@ export const HomeStackScreen = ({ navigation }) => {
       <HomeStack.Screen
         name="Player"
         component={Play}
-        options={{
-          headerShown: false,
-          headerStyle: {
-            backgroundColor: "#000000",
-          },
-          headerTintColor: "#FFFFFF",
-          headerTitleStyle: {
-            fontFamily: "Barlow-SemiBold",
-            fontSize: scaledSize(22),
-          },
-        }}
-      />
-      <HomeStack.Screen
-        name="pp"
-        component={Playv2}
         options={{
           headerShown: false,
           headerStyle: {

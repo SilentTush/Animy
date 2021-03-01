@@ -13,17 +13,21 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ToastAndroid,
+  TouchableNativeFeedback,
 } from "react-native";
 import Slider from "@react-native-community/slider";
+import { useKeepAwake } from "expo-keep-awake";
 import * as Progress from "react-native-progress";
 import {
   FontAwesome5,
-  Entyp,
+  SimpleLineIcons,
   MaterialCommunityIcons,
   MaterialIcons,
   Ionicons,
 } from "@expo/vector-icons";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { Video, AVPlaybackStatus } from "expo-av";
+import DoubleClick from "react-native-double-tap";
 import axios from "react-native-axios";
 import { scaledSize } from "./Home";
 const Play = ({ navigation, route }) => {
@@ -43,8 +47,10 @@ const Play = ({ navigation, route }) => {
   const [showepmenu, setshowepmenu] = useState(false);
   const [serverlink, setsetverlink] = useState("");
   const [showLinksMenu, setshowLinksMenu] = useState(false);
+  const [strechedMode, setstrechedMode] = useState("contain");
   useEffect(() => {
     StatusBar.setHidden(true);
+    navigation.setOptions({ headerShown: false });
     return () => {
       StatusBar.setHidden(false);
     };
@@ -133,12 +139,54 @@ const Play = ({ navigation, route }) => {
     }
     return L;
   };
+
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    };
+  }, []);
+  useKeepAwake();
+  useEffect(() => {
+    if (showControls === true) {
+      setTimeout(() => setShowControls(false), 10000);
+    }
+  }, [showControls]);
+  const [t, st] = useState(0);
+  const [backtime, setbacktime] = useState(0);
+  function seekForwardDoubleTap() {
+    const time = new Date().getTime();
+    console.log(t);
+    const delta = time - t;
+    console.log(delta);
+    const DOUBLE_PRESS_DELAY = 400;
+    if (delta < DOUBLE_PRESS_DELAY) {
+      video.current.setPositionAsync(status.positionMillis + 10000);
+      video.current.playAsync();
+    }
+    st(time);
+  }
+  function seekBackwardDoubleTap() {
+    const time = new Date().getTime();
+    console.log(t);
+    const delta = time - backtime;
+    console.log(delta);
+    const DOUBLE_PRESS_DELAY = 400;
+    if (delta < DOUBLE_PRESS_DELAY) {
+      video.current.setPositionAsync(
+        status.positionMillis - 10000 < 0 ? 0 : status.positionMillis - 10000
+      );
+      video.current.playAsync();
+    }
+    setbacktime(time);
+  }
   return (
     <View style={styles.wrapper}>
       {loading ? (
         <ActivityIndicator
           color="white"
-          style={{ marginTop: scaledSize(400) }}
+          style={{ marginTop: scaledSize(200) }}
         ></ActivityIndicator>
       ) : (
         <View style={styles.videoHolder}>
@@ -182,6 +230,35 @@ const Play = ({ navigation, route }) => {
               </ScrollView>
             </SafeAreaView>
           ) : null}
+          <TouchableOpacity
+            backgroundColor={TouchableNativeFeedback.Ripple("#fff", false, 10)}
+            onPress={seekBackwardDoubleTap}
+            style={{
+              width: scaledSize(200),
+              height: scaledSize(180),
+              borderRadius: scaledSize(100),
+              zIndex: 30,
+              left: 0,
+              position: "absolute",
+              top: scaledSize(120),
+            }}
+          ></TouchableOpacity>
+          <TouchableWithoutFeedback
+            backgroundColor={TouchableNativeFeedback.Ripple("#fff", false, 10)}
+            onPress={seekForwardDoubleTap}
+          >
+            <View
+              style={{
+                width: scaledSize(200),
+                height: scaledSize(180),
+                borderRadius: scaledSize(100),
+                zIndex: 30,
+                right: 0,
+                position: "absolute",
+                top: scaledSize(120),
+              }}
+            ></View>
+          </TouchableWithoutFeedback>
           {loading ? (
             <ActivityIndicator
               color="white"
@@ -198,12 +275,12 @@ const Play = ({ navigation, route }) => {
                 >
                   <Text style={styles.epbuttonTxt}>Episodes</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={styles.serverButton}
                   onPress={() => setshowLinksMenu(!showLinksMenu)}
                 >
                   <Text style={styles.epbuttonTxt}>Change server</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <Ionicons
                   name="arrow-back"
                   size={24}
@@ -230,11 +307,24 @@ const Play = ({ navigation, route }) => {
                     name="replay-10"
                     size={scaledSize(30)}
                     color="white"
+                    onPress={() => {
+                      video.current.setPositionAsync(
+                        status.positionMillis - 10000 < 0
+                          ? 0
+                          : status.positionMillis - 10000
+                      );
+                      video.current.playAsync();
+                    }}
                   />
                   <MaterialCommunityIcons
                     name="skip-previous"
                     size={scaledSize(30)}
                     color="white"
+                    onPress={() => {
+                      let x = (Number(ep) - 1) % totalep;
+                      skip(x);
+                      setEp(x);
+                    }}
                   />
                   {status.isPlaying ? (
                     <FontAwesome5
@@ -296,6 +386,24 @@ const Play = ({ navigation, route }) => {
                         thumbTintColor="#fff"
                       />
                       <Text style={styles.time}>{durationTime ?? "0"}</Text>
+
+                      <SimpleLineIcons
+                        name="size-fullscreen"
+                        size={scaledSize(16)}
+                        style={{
+                          marginRight: scaledSize(20),
+                          width: scaledSize(40),
+                          height: scaledSize(40),
+                          textAlign: "center",
+                          textAlignVertical: "center",
+                        }}
+                        onPress={() => {
+                          if (strechedMode == "cover")
+                            setstrechedMode("contain");
+                          else setstrechedMode("cover");
+                        }}
+                        color="white"
+                      />
                     </>
                   ) : (
                     <Text style={styles.time}>{"trying to load..."}</Text>
@@ -313,7 +421,7 @@ const Play = ({ navigation, route }) => {
               }} // Can be a URL or a local file.
               shouldPlay
               ref={video}
-              resizeMode="cover"
+              resizeMode={strechedMode}
               onPlaybackStatusUpdate={(status) => setStatus(() => status)}
               style={styles.video}
             />
@@ -328,7 +436,7 @@ export default Play;
 
 const styles = StyleSheet.create({
   epbuttonTxt: {
-    color: "white",
+    color: "#d8d8d8",
     fontFamily: "Barlow-Medium",
     height: "100%",
     width: "100%",
@@ -340,12 +448,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
-    borderColor: "white",
-    borderRadius: 20,
-    borderWidth: 2,
+    borderColor: "rgba(200,200,200,0.5)",
+    borderWidth: 1,
+    borderRadius: 10,
     width: scaledSize(100),
     height: scaledSize(40),
-    backgroundColor: "black",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   serverButton: {
     position: "absolute",
@@ -423,33 +531,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 16,
-    width: Dimensions.get("window").height,
-    height: Dimensions.get("window").width,
+    width: "100%",
+    height: "100%",
     backgroundColor: "rgba(0,0,0,0.3)",
     position: "absolute",
     bottom: 0,
   },
   videoHolder: {
-    width: Dimensions.get("window").height,
-    height: "100%",
     backgroundColor: "black",
-    transform: [{ rotateZ: "90deg" }],
     alignItems: "center",
+    width: "100%",
+    height: "100%",
     justifyContent: "center",
   },
   wrapper: {
     width: "100%",
     height: "100%",
     backgroundColor: "black",
-    padding: 0,
     margin: 0,
+    alignSelf: "center",
   },
   video: {
-    width: Dimensions.get("window").height,
-    height: Dimensions.get("window").width,
-    position: "absolute",
-    bottom: 0,
-    zIndex: 6,
-    resizeMode: "cover",
+    width: "100%",
+    height: "100%",
   },
 });

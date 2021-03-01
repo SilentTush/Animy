@@ -60,7 +60,7 @@ const BottomSlider = ({ ep, navigation, setshow, id, title }) => {
             return (
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate("pp", {
+                  navigation.navigate("Player", {
                     ep: item,
                     id: id,
                     title: title,
