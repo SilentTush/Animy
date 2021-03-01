@@ -1,13 +1,19 @@
-import AppLoading from 'expo-app-loading';
-import * as Font from 'expo-font';
-import React from 'react';
-import { Text, View } from 'react-native';
+import AppLoading from "expo-app-loading";
+import * as Font from "expo-font";
+import React from "react";
+import { Text, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { MainDrawer } from "./Components/drawer";
 
 export default function App() {
   const [fontsLoaded] = Font.useFonts({
-    'Inter-Black': require('./assets/fonts/Inter-Black.otf'),
-    'Inter-SemiBoldItalic':
-      'https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12',
+    "Barlow-Bold": require("./assets/fonts/BarlowSemiCondensed-Bold.ttf"),
+    "Barlow-ExtraBold": require("./assets/fonts/BarlowSemiCondensed-ExtraBold.ttf"),
+    "Barlow-Light": require("./assets/fonts/BarlowSemiCondensed-Light.ttf"),
+    "Barlow-ExtraLight": require("./assets/fonts/BarlowSemiCondensed-ExtraLight.ttf"),
+    "Barlow-Regular": require("./assets/fonts/BarlowSemiCondensed-Regular.ttf"),
+    "Barlow-Medium": require("./assets/fonts/BarlowSemiCondensed-Medium.ttf"),
+    "Barlow-SemiBold": require("./assets/fonts/BarlowSemiCondensed-SemiBold.ttf"),
   });
 
   if (!fontsLoaded) {
@@ -15,12 +21,8 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Platform Default</Text>
-      <Text style={{ fontFamily: "Inter-Black" }}>Inter Black</Text>
-      <Text style={{ fontFamily: "Inter-SemiBoldItalic" }}>
-        Inter SemiBoldItalic
-      </Text>
-    </View>
+    <NavigationContainer>
+      <MainDrawer></MainDrawer>
+    </NavigationContainer>
   );
 }
