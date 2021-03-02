@@ -1,7 +1,7 @@
 {
     "expo": {
      "name": "Animy",
-     "version": "0.5.0",
+     "version": "0.6.0",
      "slug": "animy",
      "splash": {
       "image": "./assets/images/splash.png",

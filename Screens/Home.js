@@ -91,8 +91,13 @@ const Home = ({ navigation }) => {
                   return (
                     <TouchableOpacity
                       onPress={() =>
-                        navigation.navigate("Info", {
+                        navigation.navigate("Player", {
                           id: item.animeId,
+                          ep: item.currentEpisode,
+                          title: item.animeName,
+                          time: item.time,
+                          totalep: item.totalEpisodes,
+                          image: item.image,
                         })
                       }
                       style={s.card2}

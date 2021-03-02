@@ -33,6 +33,7 @@ import { scaledSize } from "./Home";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const Play = ({ navigation, route }) => {
   const video = useRef(null);
+  const [prevTime, setPrevTime] = useState(route.params.time);
   const [status, setStatus] = useState({});
   const [id, setId] = useState(route.params.id);
   const [ep, setEp] = useState(route.params.ep);
@@ -56,6 +57,7 @@ const Play = ({ navigation, route }) => {
   const [backtime, setbacktime] = useState(0);
   const [showseekinfoR, setshowseekinfoR] = useState(false);
   const [showseekinfoL, setshowseekinfoL] = useState(false);
+  const [updated, setupdated] = useState(false);
   // to hide statusbar
   useEffect(() => {
     StatusBar.setHidden(true);
@@ -168,6 +170,20 @@ const Play = ({ navigation, route }) => {
     }
   }, [showControls]);
 
+  useEffect(() => {
+    if (
+      prevTime === null ||
+      prevTime === undefined ||
+      video === null ||
+      video.current === null
+    )
+      return;
+
+    if (status.isLoaded) {
+      video.current.setPositionAsync(prevTime);
+      console.log(prevTime);
+    }
+  }, [status.isLoaded]);
   function seekForwardDoubleTap() {
     const time = new Date().getTime();
     const delta = time - t;
@@ -244,6 +260,7 @@ const Play = ({ navigation, route }) => {
       await AsyncStorage.setItem("prevArray", JSON.stringify(prevArray));
     }
   }, [status.positionMillis]);
+
   return (
     <View style={styles.wrapper}>
       {loading ? (
