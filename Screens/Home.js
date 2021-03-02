@@ -11,6 +11,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -52,26 +53,41 @@ const Home = ({ navigation }) => {
         setLoading(false);
       });
   }, []);
-
+  async function remove(id) {
+    let x = await AsyncStorage.getItem("prevArray");
+    let prevArray = [];
+    if (x === null) {
+      return;
+    } else {
+      prevArray = JSON.parse(x);
+      if (prevArray.some((e) => e.animeId === id)) {
+        const index = prevArray.findIndex((e) => e.id === id);
+        prevArray.splice(index, 1);
+      }
+    }
+    setPrevArray(prevArray);
+    await AsyncStorage.setItem("prevArray", JSON.stringify(prevArray));
+  }
   return (
     <View style={s.mainView}>
       <StatusBar backgroundColor="black" barStyle="light-content"></StatusBar>
-      <View>
+      <View style={{ flex: 1 }}>
         {prevArray && prevArray.length > 0 ? (
           <>
             <Text style={s.heading}>You were watching</Text>
             <SafeAreaView style={{ height: scaledSize(270) }}>
               <FlatList
-                data={prevArray}
+                data={prevArray.reverse()}
                 horizontal
                 bounces={true}
                 contentContainerStyle={{
                   alignItems: "center",
+                  marginLeft: scaledSize(10),
+
                   padding: 0,
                   paddingBottom: 0,
                 }}
                 renderItem={({ item }) => {
-                  console.log(item);
                   return (
                     <TouchableOpacity
                       onPress={() =>
@@ -82,6 +98,31 @@ const Home = ({ navigation }) => {
                       style={s.card2}
                       key={`watching${item.animeId}`}
                     >
+                      <TouchableOpacity
+                        style={{
+                          height: scaledSize(27),
+                          position: "absolute",
+                          zIndex: 10,
+                          backgroundColor: "rgba(0,0,0,0.4)",
+                          width: scaledSize(27),
+                          marginRight: scaledSize(10),
+                          borderRadius: scaledSize(50),
+                          marginTop: scaledSize(10),
+                          alignItems: "center",
+                          justifyContent: "center",
+                          paddingBottom: 1,
+                          paddingLeft: 0.4,
+                          right: 0,
+                          top: 0,
+                        }}
+                        onPress={() => remove(item.animeId)}
+                      >
+                        <FontAwesome
+                          name="remove"
+                          size={scaledSize(20)}
+                          color="#ffaeae"
+                        />
+                      </TouchableOpacity>
                       <Text style={s.cardTitle}>{item.animeName}</Text>
                       <Text
                         style={s.cardEpisode}
@@ -107,7 +148,7 @@ const Home = ({ navigation }) => {
             </SafeAreaView>
           </>
         ) : null}
-        <Text style={s.heading}>Recent Episodes</Text>
+        <Text style={s.heading}>Latest episodes</Text>
         {loading ? (
           <ActivityIndicator
             color="white"
@@ -158,9 +199,8 @@ const s = StyleSheet.create({
     top: 0,
   },
   container: {
-    alignItems: "center",
     backgroundColor: "rgb(0, 0, 0)",
-    height: scaledSize(370),
+    flex: 1,
   },
   image: {
     height: scaledSize(250),

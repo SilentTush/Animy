@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { scaledSize } from "./Home";
 import { Ionicons } from "@expo/vector-icons";
+import Card from "../Components/Card";
 const Search = ({ navigation }) => {
   const [data, setdata] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -71,32 +72,7 @@ const Search = ({ navigation }) => {
               paddingBottom: 80,
             }}
             renderItem={({ item }) => {
-              return (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate("Info", {
-                      id: item.id,
-                    })
-                  }
-                  style={s.card}
-                  key={item.id}
-                >
-                  <Text style={s.cardTitle}>{item.title}</Text>
-                  <LinearGradient
-                    // Background Linear Gradient
-                    colors={["rgba(0,0,0,0.8)", "transparent"]}
-                    start={[0, 1]}
-                    end={[0, 0]}
-                    style={s.darkBack}
-                  />
-                  <Image
-                    style={s.image}
-                    source={{
-                      uri: item.image,
-                    }}
-                  ></Image>
-                </TouchableOpacity>
-              );
+              return <Card item={item} navigation={navigation} />;
             }}
             keyExtractor={(item) => item.id}
           />

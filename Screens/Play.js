@@ -253,7 +253,7 @@ const Play = ({ navigation, route }) => {
         ></ActivityIndicator>
       ) : (
         <View style={styles.videoHolder}>
-          {showControls && showepmenu ? (
+          {showepmenu ? (
             <SafeAreaView style={styles.episodeMenu}>
               <ScrollView contentContainerStyle={styles.epContainer}>
                 {epList().map((item) => {
@@ -352,7 +352,10 @@ const Play = ({ navigation, route }) => {
               <View style={styles.controlsHolder}>
                 <TouchableOpacity
                   style={styles.episodeButton}
-                  onPress={() => setshowepmenu(!showepmenu)}
+                  onPress={() => {
+                    setshowepmenu(!showepmenu);
+                    setTimeout(() => setshowepmenu(false), 5000);
+                  }}
                 >
                   <Text style={styles.epbuttonTxt}>Episodes</Text>
                 </TouchableOpacity>
@@ -498,7 +501,10 @@ const Play = ({ navigation, route }) => {
             </TouchableWithoutFeedback>
           ) : null}
           <TouchableWithoutFeedback
-            onPress={() => setShowControls(!showControls)}
+            onPress={() => {
+              setShowControls(!showControls);
+              setshowepmenu(false);
+            }}
           >
             <Video
               source={{
@@ -598,7 +604,9 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     borderRadius: 20,
     padding: 20,
-    zIndex: 30,
+    position: "absolute",
+    right: 10,
+    zIndex: 40,
   },
   time: {
     color: "#fff",

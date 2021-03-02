@@ -9,7 +9,7 @@ import Play from "../Screens/Play";
 import Favorite from "../Screens/Favorite";
 import { DrawerContent } from "./DrawerContent";
 import Search from "../Screens/Search";
-import logo from "../assets/images/logo.png";
+import logo from "../assets/images/icon.png";
 import { DarkTheme } from "@react-navigation/native";
 const Drawer = createDrawerNavigator();
 const HomeStack = createStackNavigator();
@@ -36,7 +36,7 @@ export const HomeStackScreen = ({ navigation }) => {
             >
               <Image
                 source={logo}
-                style={{ width: 26, height: 26 }}
+                style={{ width: 30, height: 30, marginTop: 3 }}
                 resizeMode="contain"
               />
               <Text

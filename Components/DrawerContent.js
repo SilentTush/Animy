@@ -3,6 +3,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { View, StyleSheet, TouchableNativeFeedback, Image } from "react-native";
 import { Avatar, Title, Caption, Drawer, Text } from "react-native-paper";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
+import logo from "../assets/images/icon.png";
 import { scaledSize } from "../Screens/Home";
 export function DrawerContent(props) {
   return (
@@ -18,7 +19,13 @@ export function DrawerContent(props) {
             />
           </View>
         </View>
-        <Drawer.Section style={styles.drawerSection}>
+        <Drawer.Section style={styles.Head}>
+          <Image style={styles.image2} source={logo}></Image>
+        </Drawer.Section>
+
+        <Drawer.Section
+          style={[styles.drawerSection, { marginTop: scaledSize(20) }]}
+        >
           <DrawerItem
             label="HOME"
             labelStyle={{
@@ -73,6 +80,12 @@ const styles = StyleSheet.create({
   image: {
     width: scaledSize(60),
     height: scaledSize(60),
+  },
+  image2: {
+    width: scaledSize(100),
+    height: scaledSize(100),
+    alignSelf: "center",
+    marginRight: scaledSize(30),
   },
   container: {
     borderColor: "#1f1f1f",
