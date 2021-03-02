@@ -132,7 +132,6 @@ const Play = ({ navigation, route }) => {
   }
   //for showing time in minutes and seconds
   useEffect(() => {
-    console.log(status);
     const x = status.positionMillis / status.durationMillis;
     setdurationTime(millisToMinutesAndSeconds(status.durationMillis));
     setcurrrentTime(millisToMinutesAndSeconds(status.positionMillis));
@@ -181,7 +180,6 @@ const Play = ({ navigation, route }) => {
 
     if (status.isLoaded) {
       video.current.setPositionAsync(prevTime);
-      console.log(prevTime);
     }
   }, [status.isLoaded]);
   function seekForwardDoubleTap() {
