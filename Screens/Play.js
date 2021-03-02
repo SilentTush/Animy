@@ -57,7 +57,9 @@ const Play = ({ navigation, route }) => {
   const [backtime, setbacktime] = useState(0);
   const [showseekinfoR, setshowseekinfoR] = useState(false);
   const [showseekinfoL, setshowseekinfoL] = useState(false);
-  const [updated, setupdated] = useState(false);
+  const controlRef = useRef(null);
+  const linksRef = useRef(null);
+  const epmenuref = useRef(null);
   // to hide statusbar
   useEffect(() => {
     StatusBar.setHidden(true);
@@ -130,6 +132,7 @@ const Play = ({ navigation, route }) => {
   }
   //for showing time in minutes and seconds
   useEffect(() => {
+    console.log(status);
     const x = status.positionMillis / status.durationMillis;
     setdurationTime(millisToMinutesAndSeconds(status.durationMillis));
     setcurrrentTime(millisToMinutesAndSeconds(status.positionMillis));
@@ -142,8 +145,10 @@ const Play = ({ navigation, route }) => {
   }, [status]);
   //changing time of video using slider
   function settime(e) {
-    let x = e * status.durationMillis;
-    video.current.setPositionAsync(x);
+    if (!status.isBuffering) {
+      let x = e * status.durationMillis;
+      video.current.setPositionAsync(x);
+    }
   }
   //generating episode array
   const epList = () => {
@@ -164,11 +169,6 @@ const Play = ({ navigation, route }) => {
   //for keeping screen on
   useKeepAwake();
   //setting timeout for show control
-  useEffect(() => {
-    if (showControls === true) {
-      setTimeout(() => setShowControls(false), 2000);
-    }
-  }, [showControls]);
 
   useEffect(() => {
     if (
@@ -281,28 +281,20 @@ const Play = ({ navigation, route }) => {
                         skip(item);
                         setEp(item);
                       }}
-                    >
-                      <Text style={styles.epTile}>{item}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </SafeAreaView>
-          ) : null}
-          {showControls && showLinksMenu ? (
-            <SafeAreaView style={styles.episodeMenu}>
-              <ScrollView contentContainerStyle={styles.epContainer}>
-                {dataLinks.map((item, index) => {
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        video.current.loadAsync(item.link);
+                      onPressIn={() => {
+                        clearTimeout(controlRef.current);
+                        clearTimeout(epmenuref.current);
+                        controlRef.current = setTimeout(
+                          () => setShowControls(false),
+                          2000
+                        );
+                        epmenuref.current = setTimeout(
+                          () => setshowepmenu(false),
+                          2000
+                        );
                       }}
                     >
-                      <Text style={styles.epTile}>
-                        {item.name.replace(/(|)|-|mp4/g, "")}
-                      </Text>
+                      <Text style={styles.epTile}>{item}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -371,22 +363,18 @@ const Play = ({ navigation, route }) => {
                   style={styles.episodeButton}
                   onPress={() => {
                     setshowepmenu(!showepmenu);
-                    setTimeout(() => setshowepmenu(false), 5000);
                   }}
                 >
                   <Text style={styles.epbuttonTxt}>Episodes</Text>
                 </TouchableOpacity>
-                {/* <TouchableOpacity
-                  style={styles.serverButton}
-                  onPress={() => setshowLinksMenu(!showLinksMenu)}
-                >
-                  <Text style={styles.epbuttonTxt}>Change server</Text>
-                </TouchableOpacity> */}
                 <Ionicons
                   name="arrow-back"
                   size={24}
                   color="white"
-                  onPress={() => navigation.goBack()}
+                  onPress={async () => {
+                    await video.current.unloadAsync();
+                    navigation.goBack();
+                  }}
                   style={{
                     position: "absolute",
                     top: 10,
@@ -485,7 +473,16 @@ const Play = ({ navigation, route }) => {
                         value={progress}
                         minimumValue={0}
                         maximumValue={1}
-                        onSlidingComplete={(e) => settime(e)}
+                        onSlidingComplete={(e) => {
+                          settime(e);
+                          controlRef.current = setTimeout(
+                            () => setShowControls(false),
+                            2000
+                          );
+                        }}
+                        onSlidingStart={() => {
+                          clearTimeout(controlRef.current);
+                        }}
                         minimumTrackTintColor="#FFFFFF"
                         maximumTrackTintColor="#000000"
                         thumbTintColor="#fff"
@@ -521,6 +518,10 @@ const Play = ({ navigation, route }) => {
             onPress={() => {
               setShowControls(!showControls);
               setshowepmenu(false);
+              controlRef.current = setTimeout(
+                () => setShowControls(false),
+                2000
+              );
             }}
           >
             <Video
