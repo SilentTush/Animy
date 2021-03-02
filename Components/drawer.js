@@ -6,6 +6,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, View } from "react-native";
 import Details from "../Screens/Details";
 import Play from "../Screens/Play";
+import Favorite from "../Screens/Favorite";
 import { DrawerContent } from "./DrawerContent";
 import Search from "../Screens/Search";
 import logo from "../assets/images/logo.png";
@@ -102,6 +103,20 @@ export const HomeStackScreen = ({ navigation }) => {
       <HomeStack.Screen
         name="Search"
         component={Search}
+        options={{
+          headerStyle: {
+            backgroundColor: "#000000",
+          },
+          headerTintColor: "#FFFFFF",
+          headerTitleStyle: {
+            fontFamily: "Barlow-SemiBold",
+            fontSize: scaledSize(22),
+          },
+        }}
+      />
+      <HomeStack.Screen
+        name="Favorites"
+        component={Favorite}
         options={{
           headerStyle: {
             backgroundColor: "#000000",

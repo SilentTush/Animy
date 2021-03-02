@@ -15,7 +15,7 @@ import { scaledSize } from "../Screens/Home";
 
 import end from "../assets/images/end.png";
 
-const BottomSlider = ({ ep, navigation, setshow, id, title }) => {
+const BottomSlider = ({ ep, navigation, setshow, id, title, image }) => {
   const epList = () => {
     let L = [];
     for (var i = ep, k = 0; i >= 1; i--, k++) {
@@ -65,6 +65,7 @@ const BottomSlider = ({ ep, navigation, setshow, id, title }) => {
                     id: id,
                     title: title,
                     totalep: ep,
+                    image: image,
                   })
                 }
                 style={s.ep}

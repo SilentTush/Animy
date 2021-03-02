@@ -30,11 +30,13 @@ import { Video, AVPlaybackStatus } from "expo-av";
 import DoubleClick from "react-native-double-tap";
 import axios from "react-native-axios";
 import { scaledSize } from "./Home";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const Play = ({ navigation, route }) => {
   const video = useRef(null);
   const [status, setStatus] = useState({});
   const [id, setId] = useState(route.params.id);
   const [ep, setEp] = useState(route.params.ep);
+  const [image, setImage] = useState(route.params.image);
   const [title, settitle] = useState(route.params.title);
   const [loading, setLoading] = useState(true);
   const [dataLinks, setdataLinks] = useState([]);
@@ -48,6 +50,13 @@ const Play = ({ navigation, route }) => {
   const [serverlink, setsetverlink] = useState("");
   const [showLinksMenu, setshowLinksMenu] = useState(false);
   const [strechedMode, setstrechedMode] = useState("contain");
+  const timer = useRef(null);
+  const lefttimer = useRef(null);
+  const [t, st] = useState(0);
+  const [backtime, setbacktime] = useState(0);
+  const [showseekinfoR, setshowseekinfoR] = useState(false);
+  const [showseekinfoL, setshowseekinfoL] = useState(false);
+  // to hide statusbar
   useEffect(() => {
     StatusBar.setHidden(true);
     navigation.setOptions({ headerShown: false });
@@ -56,47 +65,48 @@ const Play = ({ navigation, route }) => {
     };
   }, []);
   useEffect(() => {
-    if (id === undefined || ep === undefined) return;
-    setLoading(true);
-    xx();
-    async function xx() {
-      axios
-        .get(`https://animyserver.herokuapp.com/api/watching/${id}/${ep}`)
-        .then((res) => {
-          console.log("ee");
-          setdataLinks(res.data.links);
-          if (res.data.links.length >= 1 || res.data.link.length >= 2) {
-            if (res.data.links.length === 0) {
-              setUrl(res.data.link);
+    const unsubscribe = navigation.addListener("focus", () => {
+      if (id === undefined || ep === undefined) return;
+      setLoading(true);
+      xx();
+      async function xx() {
+        axios
+          .get(`https://animyserver.herokuapp.com/api/watching/${id}/${ep}`)
+          .then((res) => {
+            setdataLinks(res.data.links);
+            if (res.data.links.length >= 1 || res.data.link.length >= 2) {
+              if (res.data.links.length === 0) {
+                setUrl(res.data.link);
+              } else {
+                setUrl(res.data.links[0].link);
+              }
+              setLoading(false);
             } else {
-              setUrl(res.data.links[0].link);
+              console.log("err");
             }
-            setLoading(false);
-          } else {
+          })
+          .catch((err) => {
             console.log("err");
-          }
-        })
-        .catch((err) => {
-          console.log("err");
-        });
-    }
-  }, [id]);
+          });
+      }
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, []);
   async function skip(e) {
     setLoading(true);
     setshowepmenu(false);
     axios
       .get(`https://animyserver.herokuapp.com/api/watching/${id}/${e}`)
       .then((res) => {
-        console.log("ee" + res.data.links);
         setsetverlink(res.data.link);
         setdataLinks(res.data.links);
         if (res.data.links.length >= 1 || res.data.link.length >= 2) {
           if (res.data.links.length === 0) {
             setUrl(res.data.link);
-            console.log(res.data.link);
           } else {
             setUrl(res.data.links[0].link);
-            console.log(res.data.links[0].link);
           }
           setLoading(false);
         } else {
@@ -116,6 +126,7 @@ const Play = ({ navigation, route }) => {
     var seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   }
+  //for showing time in minutes and seconds
   useEffect(() => {
     const x = status.positionMillis / status.durationMillis;
     setdurationTime(millisToMinutesAndSeconds(status.durationMillis));
@@ -127,11 +138,12 @@ const Play = ({ navigation, route }) => {
       setEp(Number(ep) + 1);
     }
   }, [status]);
-
+  //changing time of video using slider
   function settime(e) {
     let x = e * status.durationMillis;
     video.current.setPositionAsync(x);
   }
+  //generating episode array
   const epList = () => {
     let L = [];
     for (var i = totalep, k = 0; i >= 1; i--, k++) {
@@ -139,7 +151,7 @@ const Play = ({ navigation, route }) => {
     }
     return L;
   };
-
+  // fot changing orientation
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 
@@ -147,40 +159,91 @@ const Play = ({ navigation, route }) => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     };
   }, []);
+  //for keeping screen on
   useKeepAwake();
+  //setting timeout for show control
   useEffect(() => {
     if (showControls === true) {
-      setTimeout(() => setShowControls(false), 10000);
+      setTimeout(() => setShowControls(false), 2000);
     }
   }, [showControls]);
-  const [t, st] = useState(0);
-  const [backtime, setbacktime] = useState(0);
+
   function seekForwardDoubleTap() {
     const time = new Date().getTime();
-    console.log(t);
     const delta = time - t;
-    console.log(delta);
     const DOUBLE_PRESS_DELAY = 400;
     if (delta < DOUBLE_PRESS_DELAY) {
+      if (status.isBuffering) return;
       video.current.setPositionAsync(status.positionMillis + 10000);
       video.current.playAsync();
+      setshowseekinfoR(true);
+      setTimeout(() => setshowseekinfoR(false), 300);
+      if (timer.current) clearTimeout(timer.current);
+    } else {
+      timer.current = setTimeout(() => setShowControls(!showControls), 400);
     }
     st(time);
   }
   function seekBackwardDoubleTap() {
     const time = new Date().getTime();
-    console.log(t);
     const delta = time - backtime;
-    console.log(delta);
     const DOUBLE_PRESS_DELAY = 400;
     if (delta < DOUBLE_PRESS_DELAY) {
+      if (status.isBuffering) return;
       video.current.setPositionAsync(
         status.positionMillis - 10000 < 0 ? 0 : status.positionMillis - 10000
       );
       video.current.playAsync();
+      setshowseekinfoL(true);
+      setTimeout(() => setshowseekinfoL(false), 300);
+      if (lefttimer.current) clearTimeout(lefttimer.current);
+    } else {
+      lefttimer.current = setTimeout(() => setShowControls(!showControls), 400);
     }
     setbacktime(time);
   }
+
+  useEffect(() => {
+    xx();
+    async function xx() {
+      let x = await AsyncStorage.getItem("prevArray");
+      let prevArray = [];
+      if (x !== null) prevArray = JSON.parse(x);
+      else prevArray = null;
+      if (prevArray === null) {
+        prevArray = [];
+        prevArray.push({
+          animeId: id,
+          currentEpisode: ep,
+          totalEpisodes: totalep,
+          animeName: title,
+          time: status.positionMillis,
+          image: image,
+        });
+      } else if (prevArray.some((e) => e.animeId === id)) {
+        const index = prevArray.findIndex((e) => e.animeId === id);
+        let x = prevArray[index].image;
+        prevArray[index] = {
+          animeId: id,
+          currentEpisode: ep,
+          totalEpisodes: totalep,
+          animeName: title,
+          time: status.positionMillis,
+          image: x,
+        };
+      } else {
+        prevArray.push({
+          animeId: id,
+          currentEpisode: ep,
+          totalEpisodes: totalep,
+          animeName: title,
+          time: status.positionMillis,
+          image: image,
+        });
+      }
+      await AsyncStorage.setItem("prevArray", JSON.stringify(prevArray));
+    }
+  }, [status.positionMillis]);
   return (
     <View style={styles.wrapper}>
       {loading ? (
@@ -217,7 +280,6 @@ const Play = ({ navigation, route }) => {
                     <TouchableOpacity
                       key={index}
                       onPress={() => {
-                        console.log(item.link);
                         video.current.loadAsync(item.link);
                       }}
                     >
@@ -230,32 +292,51 @@ const Play = ({ navigation, route }) => {
               </ScrollView>
             </SafeAreaView>
           ) : null}
-          <TouchableOpacity
-            backgroundColor={TouchableNativeFeedback.Ripple("#fff", false, 10)}
-            onPress={seekBackwardDoubleTap}
-            style={{
-              width: scaledSize(200),
-              height: scaledSize(180),
-              borderRadius: scaledSize(100),
-              zIndex: 30,
-              left: 0,
-              position: "absolute",
-              top: scaledSize(120),
-            }}
-          ></TouchableOpacity>
-          <TouchableWithoutFeedback
-            backgroundColor={TouchableNativeFeedback.Ripple("#fff", false, 10)}
-            onPress={seekForwardDoubleTap}
-          >
+          {showseekinfoR ? (
+            <View style={styles.popupseekinfo}>
+              <MaterialIcons
+                name="forward-10"
+                size={scaledSize(30)}
+                color="white"
+              />
+            </View>
+          ) : null}
+          {showseekinfoL ? (
+            <View style={styles.popupseekinfoL}>
+              <MaterialIcons
+                name="replay-10"
+                size={scaledSize(30)}
+                color="white"
+              />
+            </View>
+          ) : null}
+          <TouchableWithoutFeedback onPress={seekBackwardDoubleTap}>
             <View
               style={{
                 width: scaledSize(200),
-                height: scaledSize(180),
+                height: scaledSize(280),
                 borderRadius: scaledSize(100),
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+                zIndex: 30,
+                left: 0,
+                position: "absolute",
+                top: scaledSize(70),
+              }}
+            ></View>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={seekForwardDoubleTap}>
+            <View
+              style={{
+                width: scaledSize(200),
+                height: scaledSize(280),
+                borderRadius: scaledSize(100),
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
                 zIndex: 30,
                 right: 0,
                 position: "absolute",
-                top: scaledSize(120),
+                top: scaledSize(70),
               }}
             ></View>
           </TouchableWithoutFeedback>
@@ -308,12 +389,14 @@ const Play = ({ navigation, route }) => {
                     size={scaledSize(30)}
                     color="white"
                     onPress={() => {
-                      video.current.setPositionAsync(
-                        status.positionMillis - 10000 < 0
-                          ? 0
-                          : status.positionMillis - 10000
-                      );
-                      video.current.playAsync();
+                      if (!status.isBuffering) {
+                        video.current.setPositionAsync(
+                          status.positionMillis - 10000 < 0
+                            ? 0
+                            : status.positionMillis - 10000
+                        );
+                        video.current.playAsync();
+                      }
                     }}
                   />
                   <MaterialCommunityIcons
@@ -364,10 +447,12 @@ const Play = ({ navigation, route }) => {
                     size={scaledSize(30)}
                     color="white"
                     onPress={() => {
-                      video.current.setPositionAsync(
-                        status.positionMillis + 10000
-                      );
-                      video.current.playAsync();
+                      if (!status.isBuffering) {
+                        video.current.setPositionAsync(
+                          status.positionMillis + 10000
+                        );
+                        video.current.playAsync();
+                      }
                     }}
                   />
                 </View>
@@ -435,6 +520,30 @@ const Play = ({ navigation, route }) => {
 export default Play;
 
 const styles = StyleSheet.create({
+  popupseekinfo: {
+    position: "absolute",
+    width: scaledSize(50),
+    height: scaledSize(50),
+    borderRadius: scaledSize(50),
+    backgroundColor: "rgba(0,0,0,0.4)",
+    zIndex: 150,
+    top: scaledSize(180),
+    alignItems: "center",
+    justifyContent: "center",
+    right: scaledSize(150),
+  },
+  popupseekinfoL: {
+    position: "absolute",
+    width: scaledSize(50),
+    height: scaledSize(50),
+    borderRadius: scaledSize(50),
+    backgroundColor: "rgba(0,0,0,0.4)",
+    zIndex: 150,
+    top: scaledSize(180),
+    alignItems: "center",
+    justifyContent: "center",
+    left: scaledSize(150),
+  },
   epbuttonTxt: {
     color: "#d8d8d8",
     fontFamily: "Barlow-Medium",

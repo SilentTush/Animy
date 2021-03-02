@@ -67,6 +67,7 @@ const Details = ({ navigation, route }) => {
           setshow={setShowEp}
           id={id}
           title={details.title}
+          image={details.image}
         />
       ) : null}
     </View>

@@ -1,91 +1,92 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   StatusBar,
-  ActivityIndicator,
+  StyleSheet,
   Image,
+  TouchableOpacity,
   FlatList,
   SafeAreaView,
   Dimensions,
-  TouchableOpacity,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { AntDesign } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Card from "../Components/Card";
-const { width, height } = Dimensions.get("window");
-// Returns an MMKV Instance
-
-const baseWidth = 411;
-const baseHeight = 771;
-const scaleWidth = width / baseWidth;
-const scaleHeight = height / baseHeight;
-const scale = Math.min(scaleWidth, scaleHeight);
-
-export const scaledSize = (size) => Math.ceil(size * scale);
-
-const Home = ({ navigation }) => {
-  const [data, setdata] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [prevWatching, setPrevWatching] = useState(null);
-  const [prevArray, setPrevArray] = useState([]);
+import { scaledSize } from "./Home";
+import { FontAwesome } from "@expo/vector-icons";
+const Favorite = ({ navigation }) => {
+  const [favArray, setFavArray] = useState([]);
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       xx();
       async function xx() {
-        let x = await AsyncStorage.getItem("prevArray");
-        if (x !== null) setPrevArray(JSON.parse(x));
+        let x = await AsyncStorage.getItem("fav");
+        if (x !== null) setFavArray(JSON.parse(x));
       }
     });
 
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe;
   }, [navigation]);
+  async function remove(id) {
+    let x = await AsyncStorage.getItem("fav");
+    let favarray = [];
+    if (x === null) {
+      return;
+    } else {
+      favarray = JSON.parse(x);
+      if (favarray.some((e) => e.id === id)) {
+        const index = favarray.findIndex((e) => e.id === id);
+        favarray.splice(index, 1);
+      }
+    }
+    setFavArray(favarray);
+    await AsyncStorage.setItem("fav", JSON.stringify(favarray));
+  }
   useEffect(() => {
-    setLoading(true);
-    fetch("https://animyserver.herokuapp.com/api/recentlyadded/1")
-      .then((res) => res.json())
-      .then((doc) => {
-        setdata(doc.results);
-        setLoading(false);
-      });
-  }, []);
-
+    console.log(favArray);
+  }, [favArray]);
   return (
     <View style={s.mainView}>
       <StatusBar backgroundColor="black" barStyle="light-content"></StatusBar>
       <View>
-        {prevArray && prevArray.length > 0 ? (
+        {favArray && favArray.length > 0 ? (
           <>
-            <Text style={s.heading}>You were watching</Text>
-            <SafeAreaView style={{ height: scaledSize(270) }}>
+            <SafeAreaView style={s.container}>
               <FlatList
-                data={prevArray}
-                horizontal
+                data={favArray}
                 bounces={true}
+                numColumns={2}
                 contentContainerStyle={{
                   alignItems: "center",
-                  padding: 0,
-                  paddingBottom: 0,
+                  width: Dimensions.get("screen").width,
                 }}
+                keyExtractor={(item) => item.id}
                 renderItem={({ item }) => {
-                  console.log(item);
                   return (
                     <TouchableOpacity
                       onPress={() =>
                         navigation.navigate("Info", {
-                          id: item.animeId,
+                          id: item.id,
                         })
                       }
                       style={s.card2}
-                      key={`watching${item.animeId}`}
                     >
-                      <Text style={s.cardTitle}>{item.animeName}</Text>
-                      <Text
+                      <TouchableOpacity
+                        style={s.heartblank}
+                        onPress={() => remove(item.id)}
+                      >
+                        <FontAwesome
+                          name="remove"
+                          size={scaledSize(20)}
+                          color="#ffaeae"
+                        />
+                      </TouchableOpacity>
+
+                      <Text style={s.cardTitle}>{item.title}</Text>
+                      {/* <Text
                         style={s.cardEpisode}
-                      >{`Episode: ${item.currentEpisode}`}</Text>
+                      >{`Episode: ${item.currentEpisode}`}</Text> */}
                       <LinearGradient
                         // Background Linear Gradient
                         colors={["rgba(0,0,0,0.8)", "transparent"]}
@@ -102,56 +103,27 @@ const Home = ({ navigation }) => {
                     </TouchableOpacity>
                   );
                 }}
-                keyExtractor={(item) => item.animeId}
               />
             </SafeAreaView>
           </>
         ) : null}
-        <Text style={s.heading}>Recent Episodes</Text>
-        {loading ? (
-          <ActivityIndicator
-            color="white"
-            style={{ marginTop: scaledSize(300) }}
-          ></ActivityIndicator>
-        ) : (
-          <SafeAreaView style={s.container}>
-            <FlatList
-              data={data}
-              numColumns={2}
-              alwaysBounceVertical={true}
-              bounces={true}
-              contentContainerStyle={{
-                alignItems: "center",
-                width: Dimensions.get("screen").width,
-              }}
-              renderItem={({ item }) => {
-                return (
-                  <Card
-                    scaledSize={scaledSize}
-                    item={item}
-                    navigation={navigation}
-                  />
-                );
-              }}
-              keyExtractor={(item) => item.id}
-            />
-          </SafeAreaView>
-        )}
       </View>
     </View>
   );
 };
 
-export default Home;
+export default Favorite;
 
 const s = StyleSheet.create({
   heartblank: {
-    height: scaledSize(50),
+    height: scaledSize(27),
     position: "absolute",
     zIndex: 10,
-    width: scaledSize(50),
-    paddingLeft: scaledSize(10),
-    paddingBottom: scaledSize(10),
+    backgroundColor: "rgba(0,0,0,0.4)",
+    width: scaledSize(27),
+    marginRight: scaledSize(10),
+    borderRadius: scaledSize(50),
+    marginTop: scaledSize(10),
     alignItems: "center",
     justifyContent: "center",
     right: 0,
@@ -160,7 +132,8 @@ const s = StyleSheet.create({
   container: {
     alignItems: "center",
     backgroundColor: "rgb(0, 0, 0)",
-    height: scaledSize(370),
+    height: "100%",
+    paddingTop: 0,
   },
   image: {
     height: scaledSize(250),
