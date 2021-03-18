@@ -11,8 +11,8 @@ import {
   ScrollView,
 } from "react-native";
 import { scaledSize } from "./Home";
-import BottomSheet from "react-native-gesture-bottom-sheet";
 import BottomSlider from "../Components/BottomSlider";
+
 const Details = ({ navigation, route }) => {
   const [id, setId] = useState(route.params.id);
   const [loading, setLoading] = useState(false);
@@ -30,6 +30,7 @@ const Details = ({ navigation, route }) => {
         });
     }
   }, [id]);
+
   return (
     <View style={s.main}>
       {loading ? (
@@ -47,10 +48,26 @@ const Details = ({ navigation, route }) => {
           <ScrollView style={s.summaryHolder}>
             <Text style={s.summary}>{details.summary}</Text>
           </ScrollView>
-
+          {/* <View style={s.button}>
+            <TouchableNativeFeedback
+              onPress={() => downloadEpisode()}
+              background={TouchableNativeFeedback.Ripple("#242424", true)}
+            >
+              <View style={{ width: "100%" }}>
+                <Text style={s.buttonText}>Download</Text>
+              </View>
+            </TouchableNativeFeedback>
+          </View> */}
           <View style={s.button}>
             <TouchableNativeFeedback
-              onPress={() => setShowEp(true)}
+              onPress={() =>
+                navigation.navigate("Episodes", {
+                  ep: details.totalepisode,
+                  id: id,
+                  title: details.title,
+                  image: details.image,
+                })
+              }
               background={TouchableNativeFeedback.Ripple("#242424", true)}
             >
               <View style={{ width: "100%" }}>

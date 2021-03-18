@@ -1,7 +1,7 @@
 {
     "expo": {
      "name": "Animy",
-     "version": "0.6.0",
+     "version": "0.7.0",
      "slug": "animy",
      "splash": {
       "image": "./assets/images/splash.png",
@@ -18,8 +18,10 @@
        "buildNumber": "1.0.0"
      },
      "android": {
+      "enableDangerousExperimentalLeanBuilds": true,
        "package": "com.nexstart.animy",
        "versionCode": 2,
+       "useNextNotificationsApi": true,
        "icon":"./assets/images/icon.png"
        ,"adaptiveIcon":{"foregroundImage":"./assets/images/adaptive-icon.png"}
      }

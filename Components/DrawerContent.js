@@ -69,7 +69,7 @@ export function DrawerContent(props) {
         </Drawer.Section>
       </DrawerContentScrollView>
       <Drawer.Section style={styles.bottomDrawerWrapper}>
-        <Text style={styles.bottomDrawer}>Animy Beta v0.6</Text>
+        <Text style={styles.bottomDrawer}>Animy Beta v0.7</Text>
         <Text style={styles.bottomDrawer}>Made with ❤ by Tushar kushwaha</Text>
       </Drawer.Section>
     </View>

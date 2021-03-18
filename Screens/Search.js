@@ -43,6 +43,9 @@ const Search = ({ navigation }) => {
         <TextInput
           onChangeText={(e) => setquery(e)}
           style={s.searchBox}
+          onSubmitEditing={() => {
+            search(query, 0);
+          }}
         ></TextInput>
         <TouchableOpacity style={s.searchButton}>
           <Ionicons

@@ -168,7 +168,6 @@ const Home = ({ navigation }) => {
               bounces={true}
               contentContainerStyle={{
                 alignItems: "center",
-                width: Dimensions.get("screen").width,
               }}
               renderItem={({ item }) => {
                 return (
