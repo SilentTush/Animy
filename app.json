@@ -18,7 +18,6 @@
        "buildNumber": "1.0.0"
      },
      "android": {
-      "enableDangerousExperimentalLeanBuilds": true,
        "package": "com.nexstart.animy",
        "versionCode": 2,
        "useNextNotificationsApi": true,

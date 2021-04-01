@@ -39,11 +39,11 @@
     "react-native-web": "~0.13.12",
     "react-navigation-drawer": "^2.7.0",
     "rn-fetch-blob": "^0.12.0",
-    "expo-notifications": "~0.8.2"
+    "expo-notifications": "~0.8.2",
+    "expo-splash-screen": "~0.8.1"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
-    "typescript": "~4.0.0",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2"
   },
