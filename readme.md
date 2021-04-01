@@ -62,6 +62,9 @@ There are many anime sites where you can watch anime for free but with a lot of 
 
 Animy is created to provide anime for free.
 
+You can also checkout animy web version.
+[AnimyWeb](https://animy.ml/)
+
 <div display="flex" overflow="auto">
 <img src="screenshots/Main.jpg" width="23%" />
 &nbsp
