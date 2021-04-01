@@ -62,6 +62,7 @@ There are many anime sites where you can watch anime for free but with a lot of 
 
 Animy is created to provide anime for free.
 
+<div display="flex" overflow="auto">
 <img src="screenshots/Main.jpg" width="23%" />
 &nbsp
 <img src="screenshots/home.jpg" width="23%" />
@@ -69,6 +70,7 @@ Animy is created to provide anime for free.
 <img src="screenshots/info.jpg" width="23%" />
 &nbsp
 <img src="screenshots/epi.jpg" width="23%" />
+</div>
 
 ### Built With
 
