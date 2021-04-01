@@ -1,9 +1,9 @@
-[![Contributors][contributors-shield]][https://github.com/silenttush/animy/network]
-[![Forks][forks-shield]][https://github.com/silenttush/animy/network/members]
-[![Stargazers][stars-shield]][https://github.com/silenttush/animy/stargazers]
-[![Issues][issues-shield]][https://github.com/silenttush/animy/issues]
-[![MIT License][license-shield]][https://github.com/silenttush/animy/blob/main/license]
-[![LinkedIn][linkedin-shield]][https://www.linkedin.com/in/tushar-kushwaha-b2b82918a/]
+[![Contributors][contributors-shield]](https://github.com/silenttush/animy/network)
+[![Forks][forks-shield]](https://github.com/silenttush/animy/network/members)
+[![Stargazers][stars-shield]](https://github.com/silenttush/animy/stargazers)
+[![Issues][issues-shield]](https://github.com/silenttush/animy/issues)
+[![MIT License][license-shield]](https://github.com/silenttush/animy/blob/main/license)
+[![LinkedIn][linkedin-shield]](https://www.linkedin.com/in/tushar-kushwaha-b2b82918a/)
 
 <!-- PROJECT LOGO -->
 <br />
