@@ -58,7 +58,7 @@
 
 ## About The Project
 
-<img src="screenshots/main.jpg" width="23%" />
+<img src="screenshots/Main.jpg" width="23%" />
 &nbsp
 <img src="screenshots/home.jpg" width="23%" />
 &nbsp
