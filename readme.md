@@ -58,6 +58,10 @@
 
 ## About The Project
 
+There are many anime sites where you can watch anime for free but with a lot of ads, animy just scraps links from many such online websites. So, we do not host any pirated content ourselves, we just use links that are already available on the internet.
+
+Animy is created to provide anime for free.
+
 <img src="screenshots/Main.jpg" width="23%" />
 &nbsp
 <img src="screenshots/home.jpg" width="23%" />
@@ -65,10 +69,6 @@
 <img src="screenshots/info.jpg" width="23%" />
 &nbsp
 <img src="screenshots/epi.jpg" width="23%" />
-
-There are many anime sites where you can watch anime for free but with a lot of ads, animy just scraps links from many such online websites. So, we do not host any pirated content ourselves, we just use links that are already available on the internet.
-
-Animy is created to provide anime for free.
 
 ### Built With
 
