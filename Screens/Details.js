@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { scaledSize } from "./Home";
 import BottomSlider from "../Components/BottomSlider";
+import { base_url } from "../apis";
+import axios from "axios";
 
 const Details = ({ navigation, route }) => {
   const [id, setId] = useState(route.params.id);
@@ -22,12 +24,10 @@ const Details = ({ navigation, route }) => {
     setLoading(true);
     ff();
     async function ff() {
-      fetch(`https://animyserver.herokuapp.com/api/details/${id}`)
-        .then((res) => res.json())
-        .then((doc) => {
-          setdetails(doc.results[0]);
-          setLoading(false);
-        });
+      axios.get(base_url + "/api/details/" + id).then((res) => {
+        setdetails(res.data.result);
+        setLoading(false);
+      });
     }
   }, [id]);
 
@@ -62,10 +62,11 @@ const Details = ({ navigation, route }) => {
             <TouchableNativeFeedback
               onPress={() =>
                 navigation.navigate("Episodes", {
-                  ep: details.totalepisode,
-                  id: id,
+                  ep: details.episodes.length,
+                  id: details.id,
                   title: details.title,
                   image: details.image,
+                  episodes: details.episodes,
                 })
               }
               background={TouchableNativeFeedback.Ripple("#242424", true)}

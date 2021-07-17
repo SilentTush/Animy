@@ -31,14 +31,10 @@ import DoubleClick from "react-native-double-tap";
 import axios from "react-native-axios";
 import { scaledSize } from "./Home";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { base_url } from "../apis";
 const Play = ({ navigation, route }) => {
   const video = useRef(null);
-  const [prevTime, setPrevTime] = useState(route.params.time);
   const [status, setStatus] = useState({});
-  const [id, setId] = useState(route.params.id);
-  const [ep, setEp] = useState(route.params.ep);
-  const [image, setImage] = useState(route.params.image);
-  const [title, settitle] = useState(route.params.title);
   const [loading, setLoading] = useState(true);
   const [dataLinks, setdataLinks] = useState([]);
   const [showControls, setShowControls] = useState(false);
@@ -46,10 +42,9 @@ const Play = ({ navigation, route }) => {
   const [url, setUrl] = useState("");
   const [currentTime, setcurrrentTime] = useState(0);
   const [durationTime, setdurationTime] = useState(0);
-  const [totalep, settotalep] = useState(route.params.totalep);
+  const { data, animeid, time, index, title, image } = route.params;
+  const [currentindex, setcurrentindex] = useState(index);
   const [showepmenu, setshowepmenu] = useState(false);
-  const [serverlink, setsetverlink] = useState("");
-  const [showLinksMenu, setshowLinksMenu] = useState(false);
   const [strechedMode, setstrechedMode] = useState("contain");
   const timer = useRef(null);
   const lefttimer = useRef(null);
@@ -58,7 +53,6 @@ const Play = ({ navigation, route }) => {
   const [showseekinfoR, setshowseekinfoR] = useState(false);
   const [showseekinfoL, setshowseekinfoL] = useState(false);
   const controlRef = useRef(null);
-  const linksRef = useRef(null);
   const epmenuref = useRef(null);
   // to hide statusbar
   useEffect(() => {
@@ -69,61 +63,20 @@ const Play = ({ navigation, route }) => {
     };
   }, []);
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      if (id === undefined || ep === undefined) return;
-      setLoading(true);
-      xx();
-      async function xx() {
-        axios
-          .get(`https://animyserver.herokuapp.com/api/watching/${id}/${ep}`)
-          .then((res) => {
-            setdataLinks(res.data.links);
-            if (res.data.links.length >= 1 || res.data.link.length >= 2) {
-              if (res.data.links.length === 0) {
-                setUrl(res.data.link);
-              } else {
-                setUrl(res.data.links[0].link);
-              }
-              setLoading(false);
-            } else {
-              console.log("err");
-            }
-          })
-          .catch((err) => {
-            console.log("err");
-          });
-      }
-    });
-
-    // Return the function to unsubscribe from the event so it gets removed on unmount
-    return unsubscribe;
-  }, []);
-  async function skip(e) {
+    if (!data) return;
+    let uri = base_url + `/api/getlink/${data[currentindex].id}`;
     setLoading(true);
-    setshowepmenu(false);
-    axios
-      .get(`https://animyserver.herokuapp.com/api/watching/${id}/${e}`)
-      .then((res) => {
-        setsetverlink(res.data.link);
-        setdataLinks(res.data.links);
-        if (res.data.links.length >= 1 || res.data.link.length >= 2) {
-          if (res.data.links.length === 0) {
-            setUrl(res.data.link);
-          } else {
-            setUrl(res.data.links[0].link);
-          }
-          setLoading(false);
-        } else {
-          console.log("err");
-        }
-      })
-      .catch((err) => {
-        console.log("err");
+    getdata();
+    async function getdata() {
+      setLoading(true);
+      axios.get(uri).then((res) => {
+        setdataLinks([]);
+        setUrl(res.data);
+        setLoading(false);
       });
-  }
-  async function loadlink(link) {
-    setUrl(link);
-  }
+    }
+  }, [currentindex]);
+
   function millisToMinutesAndSeconds(millis) {
     if (status.isLoaded === false) return "0:00";
     var minutes = Math.floor(millis / 60000);
@@ -138,8 +91,7 @@ const Play = ({ navigation, route }) => {
     setProgress(x);
 
     if (status.didJustFinish) {
-      skip(Number(ep) + 1);
-      setEp(Number(ep) + 1);
+      if (currentindex !== 0) setcurrentindex((prev) => prev - 1);
     }
   }, [status]);
   //changing time of video using slider
@@ -149,14 +101,6 @@ const Play = ({ navigation, route }) => {
       video.current.setPositionAsync(x);
     }
   }
-  //generating episode array
-  const epList = () => {
-    let L = [];
-    for (var i = totalep, k = 0; i >= 1; i--, k++) {
-      L[k] = i;
-    }
-    return L;
-  };
   // fot changing orientation
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -170,18 +114,11 @@ const Play = ({ navigation, route }) => {
   //setting timeout for show control
 
   useEffect(() => {
-    if (
-      prevTime === null ||
-      prevTime === undefined ||
-      video === null ||
-      video.current === null
-    )
-      return;
-
+    if (!time || !video || !video.current) return;
     if (status.isLoaded) {
-      video.current.setPositionAsync(prevTime);
+      video.current.setPositionAsync(time);
     }
-  }, [status.isLoaded]);
+  }, [status.isLoaded, time]);
   function seekForwardDoubleTap() {
     const time = new Date().getTime();
     const delta = time - t;
@@ -227,32 +164,41 @@ const Play = ({ navigation, route }) => {
       if (prevArray === null) {
         prevArray = [];
         prevArray.push({
-          animeId: id,
-          currentEpisode: ep,
-          totalEpisodes: totalep,
+          animeid: animeid,
+          currentEpisode: data[currentindex].name.split(" ")[1],
+          currentEpisodeId: data[currentindex].id,
+          totalEpisodes: data.length,
           animeName: title,
           time: status.positionMillis,
           image: image,
+          index: currentindex,
+          data,
         });
-      } else if (prevArray.some((e) => e.animeId === id)) {
-        const index = prevArray.findIndex((e) => e.animeId === id);
+      } else if (prevArray.some((e) => e.animeid === animeid)) {
+        const index = prevArray.findIndex((e) => e.animeid === animeid);
         let x = prevArray[index].image;
         prevArray[index] = {
-          animeId: id,
-          currentEpisode: ep,
-          totalEpisodes: totalep,
+          animeid: animeid,
+          currentEpisode: data[currentindex].name.split(" ")[1],
+          currentEpisodeId: data[currentindex].id,
+          totalEpisodes: data.length,
           animeName: title,
           time: status.positionMillis,
           image: x,
+          index: currentindex,
+          data,
         };
       } else {
         prevArray.push({
-          animeId: id,
-          currentEpisode: ep,
-          totalEpisodes: totalep,
+          animeid: animeid,
+          currentEpisode: data[currentindex].name.split(" ")[1],
+          currentEpisodeId: data[currentindex].id,
+          totalEpisodes: data.length,
           animeName: title,
           time: status.positionMillis,
           image: image,
+          index: currentindex,
+          data,
         });
       }
       await AsyncStorage.setItem("prevArray", JSON.stringify(prevArray));
@@ -271,13 +217,12 @@ const Play = ({ navigation, route }) => {
           {showepmenu ? (
             <SafeAreaView style={styles.episodeMenu}>
               <ScrollView contentContainerStyle={styles.epContainer}>
-                {epList().map((item) => {
+                {data.map((item, index) => {
                   return (
                     <TouchableOpacity
-                      key={item}
+                      key={item.id.toString()}
                       onPress={() => {
-                        skip(item);
-                        setEp(item);
+                        setcurrentindex(index);
                       }}
                       onPressIn={() => {
                         clearTimeout(controlRef.current);
@@ -292,7 +237,9 @@ const Play = ({ navigation, route }) => {
                         );
                       }}
                     >
-                      <Text style={styles.epTile}>{item}</Text>
+                      <Text style={styles.epTile}>
+                        {item.name.split(" ")[1]}
+                      </Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -387,7 +334,9 @@ const Play = ({ navigation, route }) => {
                 />
                 <View style={styles.titleHolder}>
                   <Text style={styles.title}>{title}</Text>
-                  <Text style={styles.titleep}>{`Episode no : ${ep}`}</Text>
+                  <Text style={styles.titleep}>{`Episode no : ${
+                    data[currentindex].name.split(" ")[1]
+                  }`}</Text>
                 </View>
                 <View style={styles.centerCotrol}>
                   <MaterialIcons
@@ -410,9 +359,7 @@ const Play = ({ navigation, route }) => {
                     size={scaledSize(30)}
                     color="white"
                     onPress={() => {
-                      let x = (Number(ep) - 1) % totalep;
-                      skip(x);
-                      setEp(x);
+                      setcurrentindex((prev) => prev + 1);
                     }}
                   />
                   {status.isPlaying ? (
@@ -443,9 +390,7 @@ const Play = ({ navigation, route }) => {
                     size={scaledSize(30)}
                     color="white"
                     onPress={() => {
-                      let x = Number(ep) + 1;
-                      skip(x);
-                      setEp(x);
+                      setcurrentindex((prev) => prev - 1);
                     }}
                   />
                   <MaterialIcons

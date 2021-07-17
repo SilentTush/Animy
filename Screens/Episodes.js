@@ -24,17 +24,7 @@ import { downloadToFolder } from "expo-file-dl";
 import * as Permissions from "expo-permissions";
 import { Feather } from "@expo/vector-icons";
 const Episodes = ({ navigation, route }) => {
-  const ep = route.params.ep;
-  const title = route.params.title;
-  const image = route.params.image;
-  const id = route.params.id;
-  const epList = () => {
-    let L = [];
-    for (var i = ep, k = 0; i >= 1; i--, k++) {
-      L[k] = i;
-    }
-    return L;
-  };
+  const { episodes, ep, id, title, image } = route.params;
 
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -74,23 +64,24 @@ const Episodes = ({ navigation, route }) => {
   });
   async function downloadEpisode(id, ep) {
     // "http://techslides.com/demos/sample-videos/small.mp4"
-    var res = await axios.get(
-      `https://animyserver.herokuapp.com/api/watching/${id}/${ep}`
-    );
-    console.log(
-      "ee" + res.data.links[0].name == "(HDP - mp4)"
-        ? res.data.links[0].link
-        : res.data.links[res.data.links.length - 1].link
-    );
+    alert("disabled temporarily");
+    // var res = await axios.get(
+    //   `https://animyserver.herokuapp.com/api/watching/${id}/${ep}`
+    // );
+    // console.log(
+    //   "ee" + res.data.links[0].name == "(HDP - mp4)"
+    //     ? res.data.links[0].link
+    //     : res.data.links[res.data.links.length - 1].link
+    // );
 
-    await downloadToFolder(
-      res.data.links[0].name == "(HDP - mp4)"
-        ? res.data.links[0].link
-        : res.data.links[res.data.links.length - 1].link,
-      `${title} Ep:${ep}.mp4`,
-      `Animy/${title}`,
-      channelId
-    );
+    // await downloadToFolder(
+    //   res.data.links[0].name == "(HDP - mp4)"
+    //     ? res.data.links[0].link
+    //     : res.data.links[res.data.links.length - 1].link,
+    //   `${title} Ep:${ep}.mp4`,
+    //   `Animy/${title}`,
+    //   channelId
+    // );
   }
   return (
     <View style={s.container}>
@@ -100,15 +91,17 @@ const Episodes = ({ navigation, route }) => {
         }}
       >
         <FlatList
-          data={epList()}
+          data={episodes}
           numColumns={1}
           style={s.flatList}
-          keyExtractor={(item) => item.toString()}
-          renderItem={({ item }) => {
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => {
             return (
               <View style={s.episodeItem}>
                 <Image style={s.image} source={{ uri: image }}></Image>
-                <Text style={s.epTxt}>{`Episode ${item}`}</Text>
+                <Text style={s.epTxt}>{`Episode ${
+                  item.name.split(" ")[1]
+                }`}</Text>
                 <TouchableOpacity
                   onPress={() => downloadEpisode(id, item)}
                   style={s.ep}
@@ -123,11 +116,12 @@ const Episodes = ({ navigation, route }) => {
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate("Player", {
-                      ep: item,
-                      id: id,
-                      title: title,
-                      totalep: ep,
-                      image: image,
+                      data: episodes,
+                      animeid: id,
+                      index: index,
+                      time: 0,
+                      title,
+                      image,
                     })
                   }
                   style={s.ep}

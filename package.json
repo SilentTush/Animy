@@ -8,6 +8,7 @@
     "@react-navigation/drawer": "^5.12.4",
     "@react-navigation/native": "^5.9.3",
     "@react-navigation/stack": "^5.14.3",
+    "axios": "^0.21.1",
     "expo": "~40.0.0",
     "expo-app-loading": "^1.0.1",
     "expo-av": "~8.7.0",
@@ -16,8 +17,10 @@
     "expo-font": "~8.4.0",
     "expo-keep-awake": "~8.4.0",
     "expo-linear-gradient": "~8.4.0",
+    "expo-notifications": "~0.8.2",
     "expo-permissions": "~10.0.0",
     "expo-screen-orientation": "~2.1.0",
+    "expo-splash-screen": "~0.8.1",
     "expo-video-player": "^1.6.1",
     "framer-motion": "^3.7.0",
     "moti": "^0.4.1",
@@ -38,9 +41,7 @@
     "react-native-video-controls": "^2.7.1",
     "react-native-web": "~0.13.12",
     "react-navigation-drawer": "^2.7.0",
-    "rn-fetch-blob": "^0.12.0",
-    "expo-notifications": "~0.8.2",
-    "expo-splash-screen": "~0.8.1"
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",

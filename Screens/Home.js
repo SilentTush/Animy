@@ -16,6 +16,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Card from "../Components/Card";
+import axios from "axios";
+import { base_url } from "../apis";
 const { width, height } = Dimensions.get("window");
 // Returns an MMKV Instance
 
@@ -46,13 +48,30 @@ const Home = ({ navigation }) => {
   }, [navigation]);
   useEffect(() => {
     setLoading(true);
-    fetch("https://animyserver.herokuapp.com/api/recentlyadded/1")
-      .then((res) => res.json())
-      .then((doc) => {
-        setdata(doc.results);
+    checkstatus();
+    axios
+      .get(base_url + "/api/homedata/" + "trending")
+      .then((response) => {
+        setdata(response.data);
         setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
       });
   }, []);
+
+  async function checkstatus() {
+    axios
+      .get(base_url + "/checkupdate")
+      .then((response) => {
+        if (response.data.toString() !== "0.9") {
+          alert("A new update is available download it to avoid bugs.");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
   async function remove(id) {
     let x = await AsyncStorage.getItem("prevArray");
     let prevArray = [];
@@ -92,11 +111,11 @@ const Home = ({ navigation }) => {
                     <TouchableOpacity
                       onPress={() =>
                         navigation.navigate("Player", {
-                          id: item.animeId,
-                          ep: item.currentEpisode,
-                          title: item.animeName,
                           time: item.time,
-                          totalep: item.totalEpisodes,
+                          data: item.data,
+                          animeid: item.animeid,
+                          index: item.index,
+                          title: item.title,
                           image: item.image,
                         })
                       }
@@ -178,7 +197,7 @@ const Home = ({ navigation }) => {
                   />
                 );
               }}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id.toString()}
             />
           </SafeAreaView>
         )}
