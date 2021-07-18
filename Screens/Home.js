@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Card from "../Components/Card";
 import axios from "axios";
 import { base_url } from "../apis";
+import { ScrollView } from "react-native";
 const { width, height } = Dimensions.get("window");
 // Returns an MMKV Instance
 
@@ -90,7 +91,7 @@ const Home = ({ navigation }) => {
   return (
     <View style={s.mainView}>
       <StatusBar backgroundColor="black" barStyle="light-content"></StatusBar>
-      <View style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1 }}>
         {prevArray && prevArray.length > 0 ? (
           <>
             <Text style={s.heading}>You were watching</Text>
@@ -120,7 +121,7 @@ const Home = ({ navigation }) => {
                         })
                       }
                       style={s.card2}
-                      key={`watching${item.animeId}`}
+                      key={`watching${item.animeid}`}
                     >
                       <TouchableOpacity
                         style={{
@@ -197,11 +198,11 @@ const Home = ({ navigation }) => {
                   />
                 );
               }}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item) => `watching${item.id}`}
             />
           </SafeAreaView>
         )}
-      </View>
+      </ScrollView>
     </View>
   );
 };

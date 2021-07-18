@@ -15,27 +15,27 @@ import {
 import { scaledSize } from "./Home";
 import { Ionicons } from "@expo/vector-icons";
 import Card from "../Components/Card";
+import axios from "axios";
+import { base_url } from "../apis";
 const Search = ({ navigation }) => {
   const [data, setdata] = useState([]);
   const [loading, setLoading] = useState(false);
   const [results, setresults] = useState([]);
-  const [page, setpage] = useState(0);
+  const [page, setpage] = useState(1);
   const [query, setquery] = useState("");
 
   function search(q, page) {
     setLoading(true);
-    if (q !== "")
-      fetch(`https://animyserver.herokuapp.com/api/search/${q}/${page}`)
-        .then((res) => res.json())
-        .then((doc) => {
-          console.log(doc);
-          if (doc) {
-            setresults(doc.results);
-            setLoading(false);
-          } else {
-            console.log("err");
-          }
-        });
+    if (query !== "")
+      axios.get(`${base_url}/api/search/${query}/${page}`).then((response) => {
+        if (response) {
+          setresults(response.data.result);
+          console.log(response.data.result);
+          setLoading(false);
+        } else {
+          history.push("/error");
+        }
+      });
   }
   return (
     <View style={s.container}>
